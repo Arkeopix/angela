@@ -18,16 +18,18 @@ int pam_sm_open_session( pam_handle_t *pamh,
     return PAM_IGNORE;
   }
 
-  if ( ( fname = malloc( 40 * sizeof( char ) ) ) == NULL )
+  if ( ( fname = malloc( 40 * sizeof( char ) ) ) == NULL ) {
     return PAM_IGNORE;
-  else
-    asprintf( &fname, "/home/%s/.container", user );
-
-  if ( access ( fname, F_OK ) == -1 ) {
-    /* invoke sh script to create and handle partition */
+  } else {
+    asprintf( &fname, "/home/%s/container/test", user );
   }
-  
-  /* open file */
+
+  if ( access ( fname, F_OK ) != -1 ) {
+    /* Open and Mount container */
+    
+  } else {
+    return PAM_IGNORE;
+  }
 }
 
 int pam_sm_close_session( pam_handle_t *pamh,
