@@ -26,7 +26,6 @@ int pam_sm_open_session( pam_handle_t *pamh,
 
   if ( access ( fname, F_OK ) != -1 ) {
     /* Open and Mount container */
-    
   } else {
     return PAM_IGNORE;
   }

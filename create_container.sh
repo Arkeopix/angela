@@ -17,8 +17,8 @@ dd if=/dev/zero of=/home/$1/container/$2 bs=1M count=$3
 echo "formating with luksFormat"
 cryptsetup -y luksFormat /home/$1/container/$2
 echo "opening container"
-cryptsetup luksOpen /home/$1/container/$2 $3_handle
+cryptsetup luksOpen /home/$1/container/$2 $2Handle
 echo "applying ext4"
-mkfs.ext4 -j /dev/mapper/$3_handle
+mkfs.ext4 -j /dev/mapper/$2Handle
 echo "closing containner"
-cryptsetup luksClose $3_handle
+cryptsetup luksClose $2Handle
