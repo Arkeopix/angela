@@ -6,7 +6,7 @@ SRC	=	pamela.c
 
 OBJ	=	$(SRC:.c=.o)
 
-CFLAGS	=	-fPIC
+CFLAGS	=	-fPIC -ggdb
 
 LIBS	=	-lpam
 
