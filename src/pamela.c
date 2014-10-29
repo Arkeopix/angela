@@ -11,7 +11,7 @@
 
 # define	 BUFF_SIZE	255
 
-static int	fork_exec_shell_script( const char *user, 
+static int	fork_exec_shell_script( char *user, 
 					char *container ) {
   char		*argv[2] = { user, container };
   pid_t		worker;
@@ -34,12 +34,12 @@ int pam_sm_open_session( pam_handle_t *pamh,
 			 int argc,
 			 const char **argv ) {
   
-  const char	*user = NULL;
-  char		*container;
-  char		*fname;
+  char		*user = NULL;
+  char		*container = NULL;
+  char		*fname = NULL;
   int	       	pgu_ret;
-  DIR		*dp;
-  struct dirent	*ep;
+  DIR		*dp = NULL;
+  struct dirent	*ep = NULL;
 
   pgu_ret = pam_get_user( pamh, &user, NULL );
   if ( pgu_ret != PAM_SUCCESS || user == NULL ) {
@@ -57,7 +57,7 @@ int pam_sm_open_session( pam_handle_t *pamh,
     /* Open and Mount containers */
     while ( ep = readdir( dp ) ){
       memset( &container, 0, BUFF_SIZE );
-      if (!(container = strcpy(container, ep->d_name))) {
+      if ( strcpy( container, ep->d_name ) ) {
 	return PAM_IGNORE;
       }
       if ( ( fork_exec_shell_script( user, container ) ) != 0 ) {
