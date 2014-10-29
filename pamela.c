@@ -7,8 +7,17 @@
 #include <sys/types.h>
 #include <security/pam_appl.h>
 
-static int fork_exec_shell_script( char *user, char *container ) {
-
+static int	fork_exec_shell_script( char *user, 
+					char *container ) {
+  pid_t		worker;
+  
+  if ( ( worker = fork() ) < 0 ) {
+    return 1;
+  } else if ( worker == 0 ) {
+    /* child process do stuff like chinese kid */
+  } else {
+    /* parent process wait for child */
+  }
 }
 
 int pam_sm_open_session( pam_handle_t *pamh,
