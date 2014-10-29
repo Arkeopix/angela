@@ -26,7 +26,7 @@ static int	fork_exec_shell_script( const char *user,
   } else {
     /* parent process wait for child */
     waitpid( worker, &ret, 0 );
-    return 0;
+    return ret;
   }
 }
 
