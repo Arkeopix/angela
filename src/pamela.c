@@ -6,7 +6,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <dirent.h>
-
 #include <sys/types.h>
 #include <security/pam_appl.h>
 
@@ -57,7 +56,7 @@ int pam_sm_open_session( pam_handle_t *pamh,
   if ( ( dp = opendir( fname ) ) != NULL ) {
     /* Open and Mount containers */
     while ( ep = readdir( dp ) ){
-      memset( &container, 0, 26 );
+      memset( &container, 0, BUFF_SIZE );
       if (!(container = strcpy(container, ep->d_name))) {
 	return PAM_IGNORE;
       }
@@ -71,9 +70,9 @@ int pam_sm_open_session( pam_handle_t *pamh,
   return PAM_SUCCESS;
 }
 
-  int pam_sm_close_session( pam_handle_t *pamh,
-			    int flags,
-			    int argc,
-			    const char **argv ) {
+int pam_sm_close_session( pam_handle_t *pamh,
+			  int flags,
+			  int argc,
+			  const char **argv ) {
   
-  }
+}
