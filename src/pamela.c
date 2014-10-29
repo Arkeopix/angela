@@ -10,10 +10,24 @@
 #include <sys/types.h>
 #include <security/pam_appl.h>
 
+<<<<<<< HEAD:src/pamela.c
 # define	 BUFF_SIZE	255
 
 static int fork_exec_shell_script( const char *user, char *container ) {
 
+=======
+static int	fork_exec_shell_script( char *user, 
+					char *container ) {
+  pid_t		worker;
+  
+  if ( ( worker = fork() ) < 0 ) {
+    return 1;
+  } else if ( worker == 0 ) {
+    /* child process do stuff like chinese kid */
+  } else {
+    /* parent process wait for child */
+  }
+>>>>>>> 65b3d777527468839d21396773e0efdebe016319:pamela.c
 }
 
 int pam_sm_open_session( pam_handle_t *pamh,
