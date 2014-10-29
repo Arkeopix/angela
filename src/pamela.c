@@ -12,7 +12,6 @@
 
 # define	 BUFF_SIZE	255
 
-
 static int	fork_exec_shell_script( const char *user, 
 					char *container ) {
   char		*argv[2] = { user, container };
@@ -21,7 +20,7 @@ static int	fork_exec_shell_script( const char *user,
 
   if ( ( worker = fork() ) == 0 ) {
     /* child process do stuff like chinese kid */
-    execv( "./open_mount_container", argv );
+    execv( "./scripts/open_mount_container.sh", argv );
   } else if ( worker < 0) {
     return 1;
   } else {
