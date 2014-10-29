@@ -9,14 +9,19 @@
 
 static int	fork_exec_shell_script( char *user, 
 					char *container ) {
+  char		*argv[2] = { user, container };
   pid_t		worker;
-  
-  if ( ( worker = fork() ) < 0 ) {
-    return 1;
-  } else if ( worker == 0 ) {
+  int		ret;
+
+  if ( ( worker = fork() ) == 0 ) {
     /* child process do stuff like chinese kid */
+    execv( "./open_mount_container", argv );
+  } else if ( worker < 0) {
+    return 1;
   } else {
     /* parent process wait for child */
+    waitpid( worker, &ret, 0 );
+    return 0;
   }
 }
 
