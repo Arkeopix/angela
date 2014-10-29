@@ -1,0 +1,5 @@
+#include "pamela.c"
+
+int	main(void) {
+  
+}
