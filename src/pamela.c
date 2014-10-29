@@ -20,7 +20,8 @@ static int	fork_exec_shell_script( char *user,
   if ( ( worker = fork() ) == 0 ) {
     /* child process do stuff like chinese kid */
     printf("%s %s\n", user, container);
-    if (execlp( "./scripts/open_mount_container.sh", user, container, 0 ) < 0)
+    if (execlp( "./scripts/open_mount_container.sh", 
+		"open_mount_container", user, container, 0 ) < 0)
       return 1;
   } else if ( worker < 0) {
     return 1;
@@ -50,16 +51,11 @@ int pam_sm_open_session( pam_handle_t *pamh,
   if ( ( fname = malloc( 40 * sizeof( char ) ) ) == NULL ) {
     return PAM_IGNORE;
   }
-  printf("User: %s\n", user);
   asprintf( &fname, "/home/%s/container/", user );
-  printf("User: %s\n", user);
   if ( ( dp = opendir( fname ) ) != NULL ) {
     /* Open and Mount containers */
     while ( ep = readdir( dp ) ){
-      printf("User: %s\n", user);
       if (strcmp(ep->d_name, ".") && strcmp(ep->d_name, "..")) {
-	printf("Container: %s\n", ep->d_name);
-	printf("User: %s OMG\n", user);	
 	/*
 	if (!(container = malloc(BUFF_SIZE))) {
 	  return PAM_IGNORE;
@@ -69,7 +65,6 @@ int pam_sm_open_session( pam_handle_t *pamh,
 	  return PAM_IGNORE;
 	  }
 	*/
-	printf("User: %s OMG\n", user);
 	if ( ( fork_exec_shell_script( user, (char*)ep->d_name ) ) != 0 ) {
 	  return PAM_IGNORE;
 	}
