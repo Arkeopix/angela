@@ -6,13 +6,15 @@
 #include <string.h>
 #include <unistd.h>
 #include <dirent.h>
+
 #include <sys/types.h>
 #include <security/pam_appl.h>
 
 # define	 BUFF_SIZE	255
 
-static int	fork_exec_shell_script( char *user, 
-					char *container ) {
+static int	fork_exec_shell_script(char *script,
+				       char *user, 
+				       char *container ) {
   char		*argv[2] = { user, container };
   pid_t		worker;
   int		ret;
@@ -20,8 +22,7 @@ static int	fork_exec_shell_script( char *user,
   if ( ( worker = fork() ) == 0 ) {
     /* child process do stuff like chinese kid */
     printf("%s %s\n", user, container);
-    if (execlp( "./scripts/open_mount_container.sh", 
-		"open_mount_container", user, container, 0 ) < 0)
+    if (execlp(script, script, user, container, 0 ) < 0)
       return 1;
   } else if ( worker < 0) {
     return 1;
@@ -55,17 +56,9 @@ int pam_sm_open_session( pam_handle_t *pamh,
   if ( ( dp = opendir( fname ) ) != NULL ) {
     /* Open and Mount containers */
     while ( ep = readdir( dp ) ){
-      if (strcmp(ep->d_name, ".") && strcmp(ep->d_name, "..")) {
-	/*
-	if (!(container = malloc(BUFF_SIZE))) {
-	  return PAM_IGNORE;
-	}
-	memset( &container, 0, BUFF_SIZE );
-	  if ( !(container = strcpy( container, ep->d_name )) ) {
-	  return PAM_IGNORE;
-	  }
-	*/
-	if ( ( fork_exec_shell_script( user, (char*)ep->d_name ) ) != 0 ) {
+      if (strcmp(ep->d_name, ".") && strcmp(ep->d_name, "..") &&
+	  ep->d_type != DT_DIR) {
+	if ( ( fork_exec_shell_script(  "/usr/share/pamela/open_mount_container.sh", user, (char*)(ep->d_name) ) ) != 0 ) {
 	  return PAM_IGNORE;
 	}
 	free(container);
@@ -81,5 +74,43 @@ int pam_sm_close_session( pam_handle_t *pamh,
 			  int flags,
 			  int argc,
 			  const char **argv ) {
-  
+  char		*user = NULL;
+  char		*tmp_user = NULL;
+  char		*container = NULL;
+  char		*fname = NULL;
+  int	       	pgu_ret;
+  DIR		*dp = NULL;
+  struct dirent	*ep = NULL;
+
+  pgu_ret = pam_get_user( pamh, &user, NULL );
+  if ( pgu_ret != PAM_SUCCESS || user == NULL )
+    return PAM_IGNORE;
+  if ( ( fname = malloc( 40 * sizeof( char ) ) ) == NULL )
+    return PAM_IGNORE;
+  if ( ( dp = opendir( "/tmp/pamela" ) ) != NULL )
+    {
+      while ( ep = readdir( dp ) )
+	{
+	  if (strcmp(ep->d_name, ".") && strcmp(ep->d_name, "..") &&
+	      ep->d_type != DT_DIR)
+	    {
+	      printf("File: %s\n", ep->d_name);
+	      if (!(tmp_user = strtok((char*)(ep->d_name), "+")))
+		return (PAM_IGNORE);
+	      printf("User token: %s (Expected: %s)\n", tmp_user, user);
+	      if (!strcmp(user, tmp_user))
+		{
+		  printf("Match!\n");
+		  if (!(container = strtok(NULL, "+")))
+		    return (PAM_IGNORE);
+		  printf("Container: %s\n", container);
+		  if ( ( fork_exec_shell_script(  "/usr/share/pamela/close_unmount_container.sh", user, container ) ) != 0 )
+		    return (PAM_IGNORE);
+		}
+	    }
+	}
+    }
+  else
+    return (PAM_IGNORE);
+  return (PAM_SUCCESS);
 }
