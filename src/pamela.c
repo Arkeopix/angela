@@ -20,14 +20,11 @@ static int	fork_exec_shell_script(char *script,
   int		ret;
 
   if ( ( worker = fork() ) == 0 ) {
-    /* child process do stuff like chinese kid */
-    printf("%s %s\n", user, container);
     if (execlp(script, script, user, container, 0 ) < 0)
       return 1;
   } else if ( worker < 0) {
     return 1;
   } else {
-    /* parent process wait for child */
     waitpid( worker, &ret, 0 );
     return ret;
   }
@@ -37,7 +34,6 @@ int pam_sm_open_session( pam_handle_t *pamh,
 			 int flags,
 			 int argc,
 			 const char **argv ) {
-  
   char		*user = NULL;
   char		*container = NULL;
   char		*fname = NULL;
@@ -54,11 +50,12 @@ int pam_sm_open_session( pam_handle_t *pamh,
   }
   asprintf( &fname, "/home/%s/container/", user );
   if ( ( dp = opendir( fname ) ) != NULL ) {
-    /* Open and Mount containers */
     while ( ep = readdir( dp ) ){
       if (strcmp(ep->d_name, ".") && strcmp(ep->d_name, "..") &&
 	  ep->d_type != DT_DIR) {
-	if ( ( fork_exec_shell_script(  "/usr/share/pamela/open_mount_container.sh", user, (char*)(ep->d_name) ) ) != 0 ) {
+	if ( ( fork_exec_shell_script( 
+	      "/usr/share/pamela/open_mount_container.sh", 
+	      user, (char*)(ep->d_name) ) ) != 0 ) {
 	  return PAM_IGNORE;
 	}
 	free(container);
@@ -104,7 +101,9 @@ int pam_sm_close_session( pam_handle_t *pamh,
 		  if (!(container = strtok(NULL, "+")))
 		    return (PAM_IGNORE);
 		  printf("Container: %s\n", container);
-		  if ( ( fork_exec_shell_script(  "/usr/share/pamela/close_unmount_container.sh", user, container ) ) != 0 )
+		  if ( ( fork_exec_shell_script(  
+			"/usr/share/pamela/close_unmount_container.sh", 
+			user, container ) ) != 0 )
 		    return (PAM_IGNORE);
 		}
 	    }
