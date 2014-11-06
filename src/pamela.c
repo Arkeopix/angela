@@ -30,25 +30,28 @@ static int	fork_exec_shell_script(char *script,
   }
 }
 
-static int	get_container_list( char **tab, 
-				    char *user ) {
+static char	**get_container_list( char *user ) {
   FILE		*fp;
   char		*line;
   size_t	len = 0;
   ssize_t	read;
   int		i = 0;
   char		*fname = NULL;
-
+  char		**tab;
+  
   if ( ( fname = malloc( 40 * sizeof( char ) ) ) == NULL )
-    return 1;
+    return NULL;
   asprintf( &fname, "/home/%s/.container", user );
   if ( ( fp = fopen( fname, "r" ) ) != NULL ) {
     if ( ( tab = malloc( sizeof( *tab) ) ) == NULL )
-      return 1;
+      return NULL;
     while ( ( read = getline( &line, &len, fp ) ) != -1 ) {
       if ( ( tab = realloc( tab, ( i + 1 ) * sizeof( *tab) ) ) == NULL )
-	return 1;
-      tab[i] = line;
+	return NULL;
+      if ( ( tab[i] = malloc( strlen( line ) * sizeof( *line ) ) ) == NULL )
+	return NULL;
+      line[strlen(line) - 1] = '\0';
+      tab[i] = strcpy( tab[i], line );
       i++;
     }
     tab[i] = NULL;
@@ -58,19 +61,17 @@ static int	get_container_list( char **tab,
     free( fname );
   } else {
     free( fname );
-    return 1;
+    return NULL;
   }
-  return 0;
+  return tab;
 }
 
 static int	is_in_file( char *d_name,
 			    char **cl ) {
   int		i;
 
-  printf( "%s %slol\n", d_name, cl[0] );
-  /* cl's NULL go fix get_container_list */
   for ( i = 0; cl[i] != NULL; i++ ) {
-    printf( "%s\n", d_name, cl[i] );
+    printf( "[%s] [%s]\n", d_name, cl[i] );
     if ( strcmp( d_name, cl[i] ) == 0 )
       return 1;
   }
@@ -97,14 +98,13 @@ int pam_sm_open_session( pam_handle_t *pamh,
     return PAM_IGNORE;
   }
   asprintf( &fname, "/home/%s/container/", user );
-  if ( ( get_container_list( container_list, user ) ) != 0 )
+  if ( ( container_list = get_container_list( user ) ) == NULL )
     return PAM_IGNORE;
   if ( ( dp = opendir( fname ) ) != NULL ) {
     while ( ep = readdir( dp ) ){
       if (strcmp(ep->d_name, ".") && strcmp(ep->d_name, "..") &&
 	  ep->d_type != DT_DIR 
 	  && is_in_file( ep->d_name, container_list ) ) {
-	printf( "do shit\n" );
 	if ( ( fork_exec_shell_script( 
 	      "/usr/share/pamela/open_mount_container.sh", 
 	      user, (char*)(ep->d_name) ) ) != 0 ) {
