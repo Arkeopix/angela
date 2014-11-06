@@ -13,9 +13,8 @@ then
     chown -R $1 /home/$1/container/mounted
 fi
 
-cryptsetup luksOpen /home/$1/container/$2 $2Handle<<EOF
-lol
-EOF
+cryptsetup luksOpen /home/$1/container/$2 $2Handle
+
 if [ ! -d "/home/$1/container/mounted/$2" ]
 then
     echo "Creating container ($2) directory"

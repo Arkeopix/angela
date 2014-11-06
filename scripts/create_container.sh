@@ -26,14 +26,14 @@ cryptsetup luksClose $2Handle
 echo "tell me, what was the password did you enter ?"
 read passwd
 
-if [ ! -e /etc/ctpasswd ]
-then
-    echo "touching /etc/ctpasswd"
-    touch /etc/ctpasswd
-fi
+#if [ ! -e /etc/ctpasswd ]
+#then
+#    echo "touching /etc/ctpasswd"
+#    touch /etc/ctpasswd
+#fi
 
-enc_pass=$( openssl passwd -1 $passwd )
-echo "$1:$enc_pass" >> /etc/ctpasswd
+#enc_pass=$( openssl passwd -1 $passwd )
+#echo "$1:$enc_pass" >> /etc/ctpasswd
 
 echo "i'm going to mail it to $1"
 
