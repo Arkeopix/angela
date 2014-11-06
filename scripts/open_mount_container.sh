@@ -13,6 +13,7 @@ then
     chown -R $1 /home/$1/container/mounted
 fi
 
+echo "opening container $2"
 cryptsetup luksOpen /home/$1/container/$2 $2Handle
 
 if [ ! -d "/home/$1/container/mounted/$2" ]
